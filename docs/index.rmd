@@ -1,0 +1,116 @@
+---
+title: "Lahman Baseball Data by Alejandro Mejia Mejia"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: cerulean
+    storyboard: true
+
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+# create www folder
+fs::dir_create("www/")
+# options for chunks
+knitr::opts_chunk$set(
+  cache = FALSE,
+  echo = TRUE,
+  collapse = FALSE,
+  eval = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  dev = "ragg_png",
+  out.width = '85%',
+  fig.path = "www/",
+  dpi = 320,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 5.5,
+  fig.retina = 2
+  )
+# tibble printing
+options(
+  pillar.print_max = 10, 
+  pillar.print_min = 10)
+```
+
+
+### Background Info {data-commentary-width=350}
+
+Background information on the dataset:
+
+```{r}
+library(Lahman)
+library(tidyverse)
+```
+
+*** 
+
+Additional links or sources:
+
+
+Analyzing Baseball Data with R, Second Edition (Chapman & Hall/CRC The R Series) by Max Marchi, Jim Albert and Benjamin S. Baumer
+
+
+https://www.amazon.com/Analyzing-Baseball-Data-Second-Chapman-dp-0815353510/dp/0815353510/ref=dp_ob_title_bk
+
+### Data Used from Lahman {data-commentary-width=350}
+
+
+```{r}
+library(tidyverse)
+hof <- read_csv("../data/HOF-BATTING.csv")
+
+hof <- hof %>%
+  mutate(MidCareer = (From + To) / 2,
+         Era = cut(MidCareer,
+                   breaks = c(1800, 1900, 1919, 1941,
+                              1960, 1976, 1993, 2050),
+                   labels = c("19th Century", "Dead Ball",
+                              "Lively Ball", "Integration",
+                              "Expansion", "Free Agency",
+                              "Long Ball")))
+
+hof_eras <- summarize(group_by(hof, Era), N = n())
+hof_eras
+
+```
+
+*** 
+
+This dataset is broken down by Hall of Fame baseball players that played in seven different eras of baseball titled with different nicknames for each era. 
+
+For example, the "19th Century" grouping is of players that played before the 1900s. But the Lahman dataset end with the "Long Ball" era was everything after the 1993 MLB season.
+
+### Bar Plot of the Era the Hall of Famers Played in {data-commentary-width=400}
+
+
+
+```{r,echo=FALSE}
+ggplot(hof, aes(x = Era)) + geom_bar()
+```
+
+*** 
+
+In this bar graph, this is showing the number of non-pitcher Hall of Famers that were selected in their specific era of baseball.
+
+The bar graphs show that both the "19th Century" and "Dead Ball" era had a total of 19 players, the "Lively Ball" era having the most with 46 players and so forth.
+
+### Scatter Plot of the Hall of Famers Era{data-commentary-width=400}
+
+
+
+```{r,echo=FALSE}
+ggplot(hof_eras, aes(Era, N)) +
+  geom_point() +
+  xlab("Baseball Era") +
+  ylab("Frequency") +
+  ggtitle("Era of the Nonpitching Hall of Famers") +
+  coord_flip()
+```
+
+***
+
+Like the bar graph, this dot plot also shows the amount of non-pitchers in their era of baseball that they played in.
+
+This dot plot is helpful to some viewers and readers because when having a larger amount categories it helps show and represents the eras in a clearer fashion.
